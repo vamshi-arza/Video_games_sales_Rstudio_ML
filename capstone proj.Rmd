@@ -1,0 +1,601 @@
+---
+title: "Video Games Sales Dataset"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+vid_sales1 <- read.csv("C:/Users/arzav/Downloads/vgsales.csv/vgsales.csv", header = TRUE, stringsAsFactors=FALSE)
+vid_sales1
+```
+
+The dataset contains 16,598 rows and 11 columns
+
+```{r}
+str(vid_sales1)
+```
+The dataset has 6 numeric variables and five categorical variables.
+
+```{r}
+summary(vid_sales1)
+
+```
+Here above we see the summary of the data
+
+
+```{r}
+colSums(is.na(vid_sales1))
+
+```
+Here we check for the missing values in the variables and we see that year has 271 missing values.
+
+```{r}
+sum(is.na(vid_sales1$Year))
+```
+
+
+```{r}
+vid_sales1$Rank <- NULL
+vid_sales1$Name <- NULL
+
+```
+
+The rank and name are not necessory for the analysis so we remove them for the model
+
+
+
+
+```{r}
+vid_sales1$Year <- as.numeric(vid_sales1$Year)
+```
+We see here that Year variables has some missing values so we are getting the warning
+
+```{r}
+sum(is.na(vid_sales1$Year))
+```
+Year has 271 missing values
+
+```{r}
+colSums(is.na(vid_sales1))
+```
+
+
+```{r}
+mean_year <- mean(vid_sales1$Year, na.rm = TRUE)
+vid_sales1$Year[is.na(vid_sales1$Year)] <- mean_year
+```
+
+Here we replace the missing values with the mean
+
+```{r}
+sum(is.na(vid_sales1$Year))
+```
+
+```{r}
+vid_sales1$Year <- as.numeric(vid_sales1$Year)
+```
+
+
+Here then we convert Year variable from char to numeric
+
+```{r}
+
+
+vid_sales1$Platform <- as.factor(vid_sales1$Platform)
+vid_sales1$Genre <- as.factor(vid_sales1$Genre)
+vid_sales1$Publisher <- as.factor(vid_sales1$Publisher)
+```
+
+We convert the categorical variables to factors
+
+```{r}
+str(vid_sales1)
+
+```
+
+#EXPLORARTORY DATA ANALYSIS
+
+```{r}
+#library(tidyverse)
+correlation_matrix <- cor(vid_sales1[, c('NA_Sales', 'EU_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales')])
+correlation_matrix
+```
+
+
+```{r}
+library(ggcorrplot)
+ggcorrplot(correlation_matrix, hc.order = TRUE, type = "lower", lab = TRUE, lab_size = 3, method="circle", colors = c("blue", "white", "red"), outline.color = "gray", show.legend = TRUE, show.diag = FALSE, title="College variables") 
+```
+We use the correlation plot to find the relationship between numeric variables 
+
+
+```{r}
+library(ggplot2)
+ggplot(vid_sales1, aes(x=Global_Sales, fill=after_stat(count)))+geom_histogram()+ggtitle("Global_Sales")+ylab("frequency")+xlab("Global_Sales")+theme(plot.title=element_text(hjust=0.5))+theme_minimal()
+```
+
+```{r}
+library(ggplot2)
+
+
+ggplot(vid_sales1, aes(x = Year)) +
+  geom_histogram(binwidth = 7, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of Year",
+       x = "Year",
+       y = "Frequency")
+```
+
+
+
+```{r}
+library(ggplot2)
+
+
+ggplot(vid_sales1, aes(x = NA_Sales)) +
+  geom_histogram(binwidth = 7, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of NA_Sales",
+       x = "NA_Sales",
+       y = "Frequency")
+
+
+```
+
+```{r}
+ggplot(vid_sales1, aes(x = EU_Sales)) +
+  geom_histogram(binwidth = 7, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of EU_Sales",
+       x = "EU_Sales",
+       y = "Frequency")
+```
+
+```{r}
+ggplot(vid_sales1, aes(x = JP_Sales)) +
+  geom_histogram(binwidth = 7, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of JP_Sales",
+       x = "JP_Sales",
+       y = "Frequency")
+```
+
+
+```{r}
+ggplot(vid_sales1, aes(x = Other_Sales)) +
+  geom_histogram(binwidth = 7, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of Other_Sales",
+       x = "Other_Sales",
+       y = "Frequency")
+```
+
+
+```{r}
+ggplot(vid_sales1, aes(x = Year, y = Global_Sales)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot between Year and Global_Sales",
+       x = "Year",
+       y = "Global_Sales")
+```
+
+
+```{r}
+# Replace 'NumericVariable1' with your actual numerical variable
+ggplot(vid_sales1, aes(x = EU_Sales, y = Global_Sales)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot between EU_Sales and Global_Sales",
+       x = "EU_Sales",
+       y = "Global_Sales")
+
+```
+
+
+```{r}
+ggplot(vid_sales1, aes(x = NA_Sales, y = Global_Sales)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot between NA_Sales and Global_Sales",
+       x = "NA_Sales",
+       y = "Global_Sales")
+```
+
+
+```{r}
+ggplot(vid_sales1, aes(x = JP_Sales, y = Global_Sales)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot between JP_Sales and Global_Sales",
+       x = "JP_Sales",
+       y = "Global_Sales")
+```
+
+```{r}
+ggplot(vid_sales1, aes(x = Other_Sales, y = Global_Sales)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot between Other_Sales and Global_Sales",
+       x = "Other_Sales",
+       y = "Global_Sales")
+```
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(forcats)
+vid_sales1 %>%
+  mutate(Platform = fct_lump(Platform, n = 10)) %>%
+  ggplot(aes(x = Platform, y = Global_Sales)) +
+  geom_boxplot() +
+  labs(title = "Box Plot with Lump Platform",
+       x = "Platform",
+       y = "Global_Sales")
+
+```
+
+
+```{r}
+vid_sales1 %>%
+  mutate(Genre = fct_lump(Genre, n = 10)) %>%
+  ggplot(aes(x = Genre, y = Global_Sales)) +
+  geom_boxplot() +
+  labs(title = "Box Plot with Lump Genre",
+       x = "Genre",
+       y = "Global Sales")
+```
+
+```{r}
+vid_sales1 %>%
+  mutate(Publisher = fct_lump(Publisher, n = 10)) %>%
+  ggplot(aes(x = Publisher, y = Global_Sales)) +
+  geom_boxplot() +
+  labs(title = "Box Plot with Lump Publisher",
+       x = "Publisher",
+       y = "Global_Sales")
+
+```
+
+
+
+```{r}
+library(dplyr)
+library(stats)
+library(base)
+top_platforms <- vid_sales1 %>%
+  group_by(Platform) %>%
+  summarize(total_sales = sum(Global_Sales)) %>%
+  arrange(desc(total_sales)) %>%
+  top_n(10)  # Adjust the number of top platforms to show
+
+# Create a bar plot
+ggplot(vid_sales1 %>% filter(Platform %in% top_platforms$Platform), aes(x = Platform, y = Global_Sales)) +
+  geom_bar(stat = "sum") +
+  coord_flip() +
+  labs(title = "Global Sales by Platform",
+       x = "Platform",
+       y = "Total Global Sales (millions)")
+
+
+```
+
+
+
+```{r}
+top_platforms <- vid_sales1 %>%
+  group_by(Genre) %>%
+  summarize(total_sales = sum(Global_Sales)) %>%
+  arrange(desc(total_sales)) %>%
+  top_n(10)  # Adjust the number of top platforms to show
+
+# Create a bar plot
+ggplot(vid_sales1 %>% filter(Genre %in% top_platforms$Genre), aes(x = Genre, y = Global_Sales)) +
+  geom_bar(stat = "sum") +
+  coord_flip() +
+  labs(title = "Global Sales by Genre",
+       x = "Platform",
+       y = "Total Global Sales (millions)")
+
+```
+
+
+```{r}
+top_platforms <- vid_sales1 %>%
+  group_by(Publisher) %>%
+  summarize(total_sales = sum(Global_Sales)) %>%
+  arrange(desc(total_sales)) %>%
+  top_n(10)  # Adjust the number of top platforms to show
+
+# Create a bar plot
+ggplot(vid_sales1 %>% filter(Publisher %in% top_platforms$Publisher), aes(x = Publisher, y = Global_Sales)) +
+  geom_bar(stat = "sum") +
+  coord_flip() +
+  labs(title = "Global Sales by Publisher",
+       x = "Platform",
+       y = "Total Global Sales (millions)")
+
+```
+
+#SPLITTING AND TRAINING THE DATA
+
+Before we can develop the model, we must divide the data into train and test datasets. We will use the train dataset to develop a linear regression model, and the test dataset as a comparison to check if the model becomes overfit or cannot predict fresh data. We will utilize 80% of the data as training data and the remaining 20% as testing data.  
+
+```{r}
+set.seed(1)
+library(lattice)
+library(caret)
+train.index=createDataPartition(vid_sales1$Global_Sales, p=0.8, list = FALSE)
+vid_train<-vid_sales1[train.index, ]
+vid_test <-vid_sales1[-train.index, ]
+vid_train_labels = vid_train[train.index, 8]
+vid_test_labels = vid_test[-train.index,8]
+
+```
+
+
+```{r}
+vid_train
+
+```
+
+
+```{r}
+vid_test
+
+```
+
+#Linear Regression
+
+```{r}
+set.seed(1)
+
+train.control =trainControl(method = "cv", number = 5)
+linear_model<-train(Global_Sales~.,data = vid_train, method = 
+"lm",trControl = train.control)
+linear_model
+
+```
+
+
+
+```{r}
+summary(linear_model)
+```
+
+
+```{r}
+vid_pred<-predict(linear_model, vid_test) 
+vid_pred
+
+```
+
+
+```{r}
+RMSE(vid_pred,vid_test$Global_Sales)
+
+```
+
+#LASSO
+
+```{r}
+set.seed(1)
+lasso <- train(
+Global_Sales ~., data = vid_train, method = "glmnet",
+trControl = trainControl("cv", number = 10),
+preProcess=c("knnImpute","nzv"), 
+tuneGrid = expand.grid(alpha = 1, lambda = 10^seq(3, -3, length = 100)))
+
+```
+
+
+```{r}
+lasso
+
+```
+
+
+```{r}
+predic_lasso <- predict(lasso,vid_test) 
+predic_lasso
+
+```
+
+
+```{r}
+RMSE(predic_lasso, vid_test$Global_Sales)
+
+```
+
+
+```{r}
+coef(lasso$finalModel, lasso$bestTune$lambda)
+
+```
+
+#RIDGE
+
+```{r}
+set.seed(1)
+ridge <- train(
+Global_Sales ~., data = vid_train, method = "glmnet",
+trControl = trainControl("cv", number = 5),
+na.action = na.pass, 
+preProcess=c("knnImpute","nzv"),
+tuneGrid = expand.grid(alpha = 0, lambda = 10^seq(-3, 3, length = 
+100)))
+
+```
+
+
+```{r}
+ridge
+
+```
+
+
+```{r}
+predict_ridge <- predict(ridge,vid_test) 
+predict_ridge
+
+```
+
+
+```{r}
+RMSE(predict_ridge,vid_test$Global_Sales)
+
+```
+
+#ELASTIC
+
+```{r}
+set.seed(1)
+enet <- train(
+Global_Sales~., data = vid_train, method = "glmnet", 
+trControl = trainControl("cv", number = 10),
+preProcess=c("knnImpute","nzv"),
+tuneGrid = expand.grid(alpha =seq(0,1, length=10), lambda = 10^seq(-
+3, 3, length = 100)))
+
+```
+
+
+```{r}
+enet
+
+```
+
+
+```{r}
+pred_elast<-predict(enet,vid_test)
+pred_elast 
+
+```
+
+
+```{r}
+RMSE(pred_elast,vid_test$Global_Sales)
+
+```
+
+#RANDON FOREST
+
+```{r}
+set.seed(1)
+vid_rf <- train(Global_Sales ~ ., data = vid_train, method = "rf", trControl = trainControl(method = "cv",number = 10),preProcess=c("knnImpute","nzv"), tuneGrid = expand.grid(mtry=c(2,4,8)))
+
+```
+
+
+```{r}
+vid_rf
+
+```
+
+
+```{r}
+pred_forest<-predict(vid_rf,vid_test)
+pred_forest 
+
+```
+
+
+```{r}
+RMSE(pred_forest, vid_test$Global_Sales)
+
+```
+
+
+```{r}
+varImp(vid_rf)
+
+```
+
+#GRADIANT BOOSTING
+
+```{r}
+set.seed(1)
+
+gbm <- train(
+Global_Sales ~., data = vid_train, method = "gbm",na.action = na.pass,
+trControl = trainControl("cv", number = 10))
+
+```
+
+
+```{r}
+predictions_gradiant=predict(gbm, vid_test)
+predictions_gradiant
+
+```
+
+
+```{r}
+RMSE(predictions_gradiant,vid_test$Global_Sales)
+
+```
+
+#SUPPORT VECTOR MACHINES WITH LINEAR KERNEL
+
+```{r}
+set.seed(1)
+
+svmln <- train( 
+Global_Sales ~., data = vid_train, method = "svmLinear",
+preProcess=c("knnImpute","nzv"),
+trControl = trainControl("cv", number = 10))
+
+```
+
+
+```{r}
+svmln
+
+```
+
+
+```{r}
+predict_svm1=predict(svmln, vid_test ) 
+predict_svm1
+
+```
+
+
+```{r}
+RMSE(predict_svm1,vid_test$Global_Sales)
+
+```
+
+#SUPPORT VECTOR MACHINES WITH RADIAL BASIS FUNCTION KERNEL
+
+```{r}
+set.seed(1)
+
+svmr <- train(
+Global_Sales ~., data = vid_train, method = "svmRadial",
+preProcess=c("knnImpute","nzv"),
+trControl = trainControl("cv", number = 10))
+
+```
+
+
+```{r}
+svmr
+
+```
+
+
+```{r}
+predict_svmrad<-predict(svmr,vid_test)
+predict_svmrad 
+
+```
+
+
+```{r}
+RMSE(predict_svmrad,vid_test$Global_Sales)
+
+```
+
+
+```{r}
+compare=resamples(list(Ran=vid_rf,G=gbm,SL=svmln,SR=svmr))
+summary(compare)
+
+```
+
+From the above all RMSE values we can see that linear regression has the least RMSE value of ~0.005 so we can say that it performs best on the model. 
